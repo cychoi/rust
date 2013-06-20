@@ -193,7 +193,7 @@ pub fn allocate_cbox(bcx: block, sigil: ast::Sigil, cdata_ty: ty::t)
         }
         ast::BorrowedSigil => {
             let cbox_ty = tuplify_box_ty(tcx, cdata_ty);
-            let llbox = alloc_ty(bcx, cbox_ty);
+            let llbox = alloc_ty(bcx, cbox_ty, "__closure");
             nuke_ref_count(bcx, llbox);
             rslt(bcx, llbox)
         }
@@ -531,7 +531,7 @@ pub fn make_opaque_cbox_take_glue(
 
         // Allocate memory, update original ptr, and copy existing data
         let opaque_tydesc = PointerCast(bcx, tydesc, Type::i8p());
-        let rval = alloca(bcx, Type::i8p());
+        let rval = alloca(bcx, Type::i8p(), "__rval");
         let bcx = callee::trans_lang_call(
             bcx,
             bcx.tcx().lang_items.closure_exchange_malloc_fn(),

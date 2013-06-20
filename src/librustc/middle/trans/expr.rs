@@ -273,7 +273,7 @@ pub fn trans_to_datum(bcx: block, expr: @ast::expr) -> DatumBlock {
                                    ty::mt { ty: unit_ty, mutbl: ast::m_imm },
                                    ty::vstore_slice(ty::re_static));
 
-        let scratch = scratch_datum(bcx, slice_ty, false);
+        let scratch = scratch_datum(bcx, slice_ty, "__adjust", false);
         Store(bcx, base, GEPi(bcx, scratch.val, [0u, abi::slice_elt_base]));
         Store(bcx, len, GEPi(bcx, scratch.val, [0u, abi::slice_elt_len]));
         DatumBlock {bcx: bcx, datum: scratch}
@@ -289,7 +289,7 @@ pub fn trans_to_datum(bcx: block, expr: @ast::expr) -> DatumBlock {
         let tcx = bcx.tcx();
         let closure_ty = expr_ty_adjusted(bcx, expr);
         debug!("add_env(closure_ty=%s)", closure_ty.repr(tcx));
-        let scratch = scratch_datum(bcx, closure_ty, false);
+        let scratch = scratch_datum(bcx, closure_ty, "__adjust", false);
         let llfn = GEPi(bcx, scratch.val, [0u, abi::fn_field_code]);
         assert_eq!(datum.appropriate_mode(), ByValue);
         Store(bcx, datum.to_appropriate_llval(bcx), llfn);
@@ -422,7 +422,7 @@ fn trans_to_datum_unadjusted(bcx: block, expr: @ast::expr) -> DatumBlock {
                 bcx = trans_rvalue_dps_unadjusted(bcx, expr, Ignore);
                 return nil(bcx, ty);
             } else {
-                let scratch = scratch_datum(bcx, ty, false);
+                let scratch = scratch_datum(bcx, ty, "", false);
                 bcx = trans_rvalue_dps_unadjusted(
                     bcx, expr, SaveIn(scratch.val));
 
@@ -1675,7 +1675,7 @@ fn trans_assign_op(bcx: block,
     // A user-defined operator method
     if bcx.ccx().maps.method_map.find(&expr.id).is_some() {
         // FIXME(#2528) evaluates the receiver twice!!
-        let scratch = scratch_datum(bcx, dst_datum.ty, false);
+        let scratch = scratch_datum(bcx, dst_datum.ty, "__assign_op", false);
         let bcx = trans_overloaded_op(bcx,
                                       expr,
                                       callee_id,

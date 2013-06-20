@@ -58,7 +58,7 @@ impl Reflector {
         let bcx = self.bcx;
         let str_vstore = ty::vstore_slice(ty::re_static);
         let str_ty = ty::mk_estr(bcx.tcx(), str_vstore);
-        let scratch = scratch_datum(bcx, str_ty, false);
+        let scratch = scratch_datum(bcx, str_ty, "", false);
         let len = C_uint(bcx.ccx(), s.len() + 1);
         let c_str = PointerCast(bcx, C_cstr(bcx.ccx(), s), Type::i8p());
         Store(bcx, c_str, GEPi(bcx, scratch.val, [ 0, 0 ]));
@@ -101,7 +101,7 @@ impl Reflector {
             debug!("arg %u: %s", i, bcx.val_to_str(*a));
         }
         let bool_ty = ty::mk_bool();
-        let scratch = scratch_datum(bcx, bool_ty, false);
+        let scratch = scratch_datum(bcx, bool_ty, "", false);
         // XXX: Should not be BoxTraitStore!
         let bcx = callee::trans_call_inner(
             self.bcx, None, mth_ty, bool_ty,
