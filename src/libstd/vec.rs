@@ -1366,7 +1366,7 @@ impl<T> OwnedVector<T> for ~[T] {
         let self_len = self.len();
         let rhs_len = rhs.len();
         let new_len = self_len + rhs_len;
-        reserve(self, new_len);
+        self.reserve(new_len);
         unsafe { // Note: infallible.
             let self_p = vec::raw::to_mut_ptr(*self);
             let rhs_p = vec::raw::to_ptr(rhs);
@@ -1384,7 +1384,7 @@ impl<T> OwnedVector<T> for ~[T] {
         }
         let valptr = ptr::to_mut_unsafe_ptr(&mut self[ln - 1u]);
         unsafe {
-            raw::set_len(v, ln - 1u);
+            raw::set_len(self, ln - 1u);
             ptr::read_ptr(valptr)
         }
     }
@@ -1501,7 +1501,7 @@ impl<T> OwnedVector<T> for ~[T] {
             unsafe {
                 // This loop is optimized out for non-drop types.
                 for uint::range(newlen, oldlen) |i| {
-                    ptr::read_and_zero_ptr(ptr::mut_offset(p, i))
+                    ptr::read_and_zero_ptr(ptr::mut_offset(p, i));
                 }
             }
         }
@@ -1664,7 +1664,7 @@ impl<T:Eq> OwnedEqVector<T> for ~[T] {
     * Remove consecutive repeated elements from a vector; if the vector is
     * sorted, this removes all duplicates.
     */
-    pub fn dedup<T:Eq>(&mut self) {
+    pub fn dedup(&mut self) {
         unsafe {
             // Although we have a mutable reference to `self`, we cannot make
             // *arbitrary* changes. There exists the possibility that this

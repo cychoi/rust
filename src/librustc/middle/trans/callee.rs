@@ -879,10 +879,10 @@ pub fn trans_arg_expr(bcx: block,
                         //    &arg_expr.id);
                         debug!("by ref arg with type %s, storing to scratch",
                                bcx.ty_to_str(arg_datum.ty));
-                        let scratch = scratch_datum(bcx, arg_datum.ty, false);
+                        let scratch = scratch_datum(bcx, arg_datum.ty,
+                                                    "__self", false);
 
                         arg_datum.store_to_datum(bcx,
-                                                 arg_expr.id,
                                                  INIT,
                                                  scratch);
 
@@ -903,7 +903,6 @@ pub fn trans_arg_expr(bcx: block,
                                                         "__arg", false);
 
                             arg_datum.store_to_datum(bcx,
-                                                     arg_expr.id,
                                                      INIT,
                                                      scratch);
 
